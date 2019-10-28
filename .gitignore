@@ -1,0 +1,5 @@
+.DS_Store
+.idea
+resources_rc.py
+__pycache__
+
