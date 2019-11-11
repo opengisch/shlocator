@@ -12,4 +12,4 @@ Entweder über den QGIS Plugin Manager oder als zip Datei von https://github.com
 
 ### Demo
 
-![Demo](https://i.imgur.com/XQZMwBp.gif)
+<img src="/doc/demo.gif?raw=true" width="600px">
