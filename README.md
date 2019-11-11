@@ -9,3 +9,7 @@ Entweder über den QGIS Plugin Manager oder als zip Datei von https://github.com
 ### API
 
 * `https://api.geo.sh.ch/geo/searchbaseobjects/geojson/?query=<suchstring>&maxfeatures=<maxfeatures>`
+
+### Demo
+
+![Demo](https://i.imgur.com/XQZMwBp.gif)
