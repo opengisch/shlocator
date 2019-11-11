@@ -19,6 +19,6 @@ script:
 
 deploy:
   provider: script
-  script: qgis-plugin-ci release ${TRAVIS_TAG} --github-token ${GH_TOKEN} --create-plugin-repo --osgeo-username ${OSGEO_USERNAME} --osgeo-password ${OSGEO_PASSWORD}
+  script: qgis-plugin-ci release ${TRAVIS_TAG} --github-token ${GH_TOKEN} --create-plugin-repo --osgeo-username "${OSGEO_USERNAME}" --osgeo-password "${OSGEO_PASSWORD}"
   on:
     tags: true
