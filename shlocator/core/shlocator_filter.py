@@ -291,10 +291,10 @@ class ShLocatorFilter(QgsLocatorFilter):
         self.map_canvas.setExtent(rect)
         self.map_canvas.refresh()
 
-        self.current_timer = QTimer()
-        self.current_timer.timeout.connect(self.clearPreviousResults)
-        self.current_timer.setSingleShot(True)
-        self.current_timer.start(5000)
+#        self.current_timer = QTimer()
+#        self.current_timer.timeout.connect(self.clearPreviousResults)
+#        self.current_timer.setSingleShot(True)
+#        self.current_timer.start(5000)
 
     def parse_feature_response(self, response):
         if response.status_code != 200:
