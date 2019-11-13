@@ -30,13 +30,13 @@ def info(message: str, level: Qgis.MessageLevel = Qgis.Info):
     meta = iface.messageBar().metaObject()
     if level == Qgis.Warning:
         meta.invokeMethod(iface.messageBar(), 'pushWarning', Qt.QueuedConnection, Q_ARG(
-            "QString", 'ShLocator'), Q_ARG("QString", message))
+            str, 'ShLocator'), Q_ARG(str, message))
     elif level == Qgis.Critical:
         meta.invokeMethod(iface.messageBar(), 'pushCritical', Qt.QueuedConnection, Q_ARG(
-            "QString", 'ShLocator'), Q_ARG("QString", message))
+            str, 'ShLocator'), Q_ARG(str, message))
     else:
         meta.invokeMethod(iface.messageBar(), 'pushInfo', Qt.QueuedConnection, Q_ARG(
-            "QString", 'ShLocator'), Q_ARG("QString", message))
+            str, 'ShLocator'), Q_ARG(str, message))
 
 
 def dbg_info(message: str):
