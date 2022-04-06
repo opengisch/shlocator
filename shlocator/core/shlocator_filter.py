@@ -83,7 +83,7 @@ class ShLocatorFilter(QgsLocatorFilter):
     message_emitted = pyqtSignal(str, str, Qgis.MessageLevel, QWidget)
 
     def __init__(self, iface: QgisInterface = None):
-        """"
+        """
         :param iface: QGIS interface, given when on the main thread (which will display/trigger results), None otherwise
         """
         super().__init__()
@@ -269,10 +269,16 @@ class ShLocatorFilter(QgsLocatorFilter):
         # this is run in the main thread, i.e. map_canvas is not None
         self.clearPreviousResults()
 
-        if type(result.userData) == NoResult:
+        user_data = None
+        if hasattr(result, 'getUserData'):
+            user_data = result.getUserData()
+        else:
+            user_data = result.userData
+
+        if type(user_data) == NoResult:
             pass
-        elif type(result.userData) == FeatureResult:
-            self.highlight(result.userData.feature.geometry())
+        elif type(user_data) == FeatureResult:
+            self.highlight(user_data.feature.geometry())
         else:
             info('Incorrect result. Please contact support', Qgis.Critical)
 
