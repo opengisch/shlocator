@@ -32,4 +32,3 @@ jobs:
         --github-token ${{ secrets.GITHUB_TOKEN }}
         --osgeo-username ${{ secrets.OSGEO_PLUGIN_USER }}
         --osgeo-password ${{ secrets.OSGEO_PLUGIN_PASSWORD }}
-        --transifex-token ${{ secrets.TX_TOKEN }}
