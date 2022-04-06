@@ -3,7 +3,7 @@
 name=ShLocator
 qgisMinimumVersion=3.4
 description=Suche für Geodaten Kanton Schaffhausen
-about=Integration in die QGIS Suche für die Geodateninfrastruktur im Kanton Schaffhausen. Über dieses Plugin können Adressen und andere Objekte im Kanton Schaffhausen gesucht und lokalisiert werden.
+about=Integration in die QGIS Suche für die Geodateninfrastruktur im Kanton Schaffhausen. Über dieses Plugin können Adressen und andere Objekte im Kanton Schaffhausen gesucht und lokalisiert werden. This is a search provider for the canton Schaffhausen in Switzerland
 version=dev
 author=Matthias Kuhn
 email=matthias@opengis.ch
