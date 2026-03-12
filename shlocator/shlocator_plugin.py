@@ -17,9 +17,9 @@
  ***************************************************************************/
 """
 
-from PyQt5.QtWidgets import QWidget
-from qgis.core import Qgis
-from qgis.gui import QgisInterface, QgsMessageBarItem
+from qgis.core import QgsSettingsTree
+from qgis.gui import QgisInterface
+from shlocator.core.settings import PLUGIN_NAME
 from shlocator.core.shlocator_filter import ShLocatorFilter
 
 
@@ -33,4 +33,5 @@ class ShLocatorPlugin:
         pass
 
     def unload(self):
+        QgsSettingsTree.unregisterPluginTreeNode(PLUGIN_NAME)
         self.iface.deregisterLocatorFilter(self.locator_filter)

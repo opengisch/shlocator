@@ -17,29 +17,34 @@
  ***************************************************************************/
 """
 
+from qgis.core import Qgis
+from qgis.gui import (
+    QgsSettingsEditorWidgetWrapper,
+    QgsSettingsBoolCheckBoxWrapper,
+)
 import os
-from qgis.PyQt.QtCore import Qt, pyqtSlot
-from qgis.PyQt.QtWidgets import QDialog, QTableWidgetItem, QAbstractItemView
 from qgis.PyQt.uic import loadUiType
+from qgis.PyQt.QtWidgets import QDialog
 
-from shlocator.qgis_setting_manager import SettingDialog, UpdateMode
-from shlocator.qgis_setting_manager.widgets import TableWidgetStringListWidget, ComboStringWidget
 from shlocator.core.settings import Settings
 
 DialogUi, _ = loadUiType(os.path.join(
     os.path.dirname(__file__), '../ui/config.ui'))
 
 
-class ConfigDialog(QDialog, DialogUi, SettingDialog):
+class ConfigDialog(QDialog, DialogUi):
     def __init__(self, parent=None):
-        settings = Settings()
+        self.settings = Settings()
         QDialog.__init__(self, parent)
-        SettingDialog.__init__(
-            self, setting_manager=settings, mode=UpdateMode.DialogAccept)
         self.setupUi(self)
-
+        self.wrappers: list[QgsSettingsEditorWidgetWrapper] = []
+        
         self.keep_scale.toggled.connect(self.point_scale.setDisabled)
         self.keep_scale.toggled.connect(self.scale_label.setDisabled)
 
-        self.settings = settings
-        self.init_widgets()
+        self.wrappers.append(
+            QgsSettingsBoolCheckBoxWrapper(
+                self.layers_include_opendataswiss,
+                self.settings.layers_include_opendataswiss,
+            )
+        )
