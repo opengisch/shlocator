@@ -17,19 +17,32 @@
  ***************************************************************************/
 """
 
+from qgis.core import (
+    QgsSettingsTree,
+    QgsSettingsEntryString,
+    QgsSettingsEntryBool,
+    QgsSettingsEntryDouble,
+    QgsSettingsEntryInteger,
+)
 
-from shlocator.qgis_setting_manager import SettingManager, Scope, Bool, Stringlist, Integer, Double, String
+PLUGIN_NAME = "shlocator"
 
-pluginName = "shlocator"
+class Settings:
+    instance = None
 
+    def __new__(cls):
+        if cls.instance is None:
+            cls.instance = super(Settings, cls).__new__(cls)
 
-class Settings(SettingManager):
-    def __init__(self):
-        SettingManager.__init__(self, pluginName)
+            settings_node = QgsSettingsTree.createPluginTreeNode(pluginName=PLUGIN_NAME)
 
-        self.add_setting(Integer('max_features', Scope.Global, 20))
-        self.add_setting(Bool('keep_scale', Scope.Global, False))
-        self.add_setting(Double('point_scale', Scope.Global, 1000))
+            cls.point_scale = QgsSettingsEntryDouble("point_scale", settings_node, 1000)
+            cls.service_url = QgsSettingsEntryString("service_url", settings_node, "https://api.geo.sh.ch/geo/searchbaseobjects/geojson/")
+            cls.keep_scale = QgsSettingsEntryBool(
+                "keep_scale", settings_node, False
+            )
+            cls.max_features = QgsSettingsEntryInteger(
+                "max_features", settings_node, 20
+            )
 
-        self.add_setting(String('service_url', Scope.Global,
-                                'https://api.geo.sh.ch/geo/searchbaseobjects/geojson/'))
+        return cls.instance

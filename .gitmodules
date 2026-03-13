@@ -1,3 +1,0 @@
-[submodule "shlocator/qgis_setting_manager"]
-	path = shlocator/qgis_setting_manager
-	url = git@github.com:opengisch/qgissettingmanager.git

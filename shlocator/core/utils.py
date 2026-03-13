@@ -19,27 +19,27 @@
 
 from qgis.core import Qgis, QgsMessageLog
 from qgis.utils import iface
-from PyQt5.QtCore import Qt, Q_ARG
+from qgis.PyQt.QtCore import Qt, Q_ARG
 
 DEBUG = True
 
 
-def info(message: str, level: Qgis.MessageLevel = Qgis.Info):
+def info(message: str, level: Qgis.MessageLevel = Qgis.MessageLevel.Info):
     QgsMessageLog.logMessage("{}: {}".format(
         'ShLocator', message), "Locator bar", level)
     meta = iface.messageBar().metaObject()
-    if level == Qgis.Warning:
-        meta.invokeMethod(iface.messageBar(), 'pushWarning', Qt.QueuedConnection, Q_ARG(
+    if level == Qgis.MessageLevel.Warning:
+        meta.invokeMethod(iface.messageBar(), 'pushWarning', Qt.ConnectionType.QueuedConnection, Q_ARG(
             str, 'ShLocator'), Q_ARG(str, message))
-    elif level == Qgis.Critical:
-        meta.invokeMethod(iface.messageBar(), 'pushCritical', Qt.QueuedConnection, Q_ARG(
+    elif level == Qgis.MessageLevel.Critical:
+        meta.invokeMethod(iface.messageBar(), 'pushCritical', Qt.ConnectionType.QueuedConnection, Q_ARG(
             str, 'ShLocator'), Q_ARG(str, message))
     else:
-        meta.invokeMethod(iface.messageBar(), 'pushInfo', Qt.QueuedConnection, Q_ARG(
+        meta.invokeMethod(iface.messageBar(), 'pushInfo', Qt.ConnectionType.QueuedConnection, Q_ARG(
             str, 'ShLocator'), Q_ARG(str, message))
 
 
 def dbg_info(message: str):
     if DEBUG:
         QgsMessageLog.logMessage("{}: {}".format(
-            'ShLocator', message), "Locator bar", Qgis.Info)
+            'ShLocator', message), "Locator bar", Qgis.MessageLevel.Info)

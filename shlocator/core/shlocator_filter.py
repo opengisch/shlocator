@@ -23,17 +23,15 @@ import os
 import sys
 import traceback
 
-from PyQt5.QtCore import (
+from qgis.PyQt.QtCore import (
     Qt,
-    QTimer,
     QUrl,
     QUrlQuery,
     QVariant,
-    QTextCodec,
     pyqtSignal
 )
-from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import QWidget, QApplication
+from qgis.PyQt.QtGui import QColor
+from qgis.PyQt.QtWidgets import QWidget, QApplication
 
 from qgis.core import (
     Qgis,
@@ -106,15 +104,15 @@ class ShLocatorFilter(QgsLocatorFilter):
                 self.create_transforms)
 
             self.rubber_band = QgsRubberBand(
-                self.map_canvas, QgsWkbTypes.PolygonGeometry)
+                self.map_canvas, QgsWkbTypes.GeometryType.PolygonGeometry)
             self.rubber_band.setColor(QColor(255, 50, 50, 200))
             self.rubber_band.setFillColor(QColor(255, 255, 50, 160))
-            self.rubber_band.setBrushStyle(Qt.SolidPattern)
-            self.rubber_band.setLineStyle(Qt.SolidLine)
+            self.rubber_band.setBrushStyle(Qt.BrushStyle.SolidPattern)
+            self.rubber_band.setLineStyle(Qt.PenStyle.SolidLine)
             self.rubber_band.setIcon(self.rubber_band.ICON_CIRCLE)
             self.rubber_band.setIconSize(15)
             self.rubber_band.setWidth(4)
-            self.rubber_band.setBrushStyle(Qt.NoBrush)
+            self.rubber_band.setBrushStyle(Qt.BrushStyle.NoBrush)
 
             self.create_transforms()
 
@@ -125,7 +123,7 @@ class ShLocatorFilter(QgsLocatorFilter):
         return ShLocatorFilter()
 
     def priority(self):
-        return QgsLocatorFilter.Highest
+        return QgsLocatorFilter.Priority.Highest
 
     def displayName(self):
         return 'ShLocator'
@@ -135,7 +133,7 @@ class ShLocatorFilter(QgsLocatorFilter):
 
     def clearPreviousResults(self):
         if self.rubber_band:
-            self.rubber_band.reset(QgsWkbTypes.PointGeometry)
+            self.rubber_band.reset(QgsWkbTypes.GeometryType.PointGeometry)
 
         if self.current_timer is not None:
             self.current_timer.stop()
@@ -147,7 +145,7 @@ class ShLocatorFilter(QgsLocatorFilter):
 
     def openConfigWidget(self, parent=None):
         dlg = ConfigDialog(parent)
-        dlg.exec_()
+        dlg.exec()
 
     def create_transforms(self):
         # this should happen in the main thread
@@ -177,13 +175,14 @@ class ShLocatorFilter(QgsLocatorFilter):
 
             params = {
                 'query': str(search),
-                'maxfeatures': str(self.settings.value('max_features'))
+                'maxfeatures': str(self.settings.max_features.value())
             }
 
             nam = NetworkAccessManager()
             feedback.canceled.connect(nam.abort)
             url = self.url_with_param(
-                self.settings.value('service_url'), params)
+                self.settings.service_url.value(), params
+            )
             dbg_info(url)
             try:
                 (response, content) = nam.request(
@@ -192,7 +191,7 @@ class ShLocatorFilter(QgsLocatorFilter):
             except RequestsExceptionUserAbort:
                 pass
             except RequestsException as err:
-                info(err, Qgis.Info)
+                info(err, Qgis.MessageLevel.Info)
 
             if not self.result_found:
                 result = QgsLocatorResult()
@@ -202,14 +201,14 @@ class ShLocatorFilter(QgsLocatorFilter):
                 self.resultFetched.emit(result)
 
         except Exception as e:
-            info(e, Qgis.Critical)
+            info(e, Qgis.MessageLevel.Critical)
             exc_type, exc_obj, exc_traceback = sys.exc_info()
             filename = os.path.split(
                 exc_traceback.tb_frame.f_code.co_filename)[1]
             info('{} {} {}'.format(exc_type, filename,
-                                   exc_traceback.tb_lineno), Qgis.Critical)
+                                   exc_traceback.tb_lineno), Qgis.MessageLevel.Critical)
             info(traceback.print_exception(
-                exc_type, exc_obj, exc_traceback), Qgis.Critical)
+                exc_type, exc_obj, exc_traceback), Qgis.MessageLevel.Critical)
 
     def data_product_qgsresult(self, data: dict) -> QgsLocatorResult:
         result = QgsLocatorResult()
@@ -240,9 +239,10 @@ class ShLocatorFilter(QgsLocatorFilter):
             display_name_field = QgsField('display_name', QVariant.String)
             fields = QgsFields()
             fields.append(display_name_field)
-            features = QgsJsonUtils.stringToFeatureList(response.content.decode('utf-8'), fields, QTextCodec.codecForName('UTF-8'))
+            json_text = response.content.decode('utf-8')
+            features = QgsJsonUtils.stringToFeatureList(json_text, fields)
             dbg_info('Found {} features'.format(len(features)))
-            dbg_info('Data {}'.format(response.content.decode('utf-8')))
+            dbg_info('Data {}'.format(json_text))
 
             for feature in features:
                 dbg_info('Adding feature {}'.format(feature['display_name']))
@@ -256,14 +256,14 @@ class ShLocatorFilter(QgsLocatorFilter):
                 self.result_found = True
 
         except Exception as e:
-            info(str(e), Qgis.Critical)
+            info(str(e), Qgis.MessageLevel.Critical)
             exc_type, exc_obj, exc_traceback = sys.exc_info()
             filename = os.path.split(
                 exc_traceback.tb_frame.f_code.co_filename)[1]
             info('{} {} {}'.format(exc_type, filename,
-                                   exc_traceback.tb_lineno), Qgis.Critical)
+                                   exc_traceback.tb_lineno), Qgis.MessageLevel.Critical)
             info(traceback.print_exception(
-                exc_type, exc_obj, exc_traceback), Qgis.Critical)
+                exc_type, exc_obj, exc_traceback), Qgis.MessageLevel.Critical)
 
     def triggerResult(self, result: QgsLocatorResult):
         # this is run in the main thread, i.e. map_canvas is not None
@@ -278,20 +278,21 @@ class ShLocatorFilter(QgsLocatorFilter):
         if type(user_data) == NoResult:
             pass
         elif type(user_data) == FeatureResult:
-            self.highlight(user_data.feature.geometry())
+            geometry = QgsGeometry(user_data.feature.geometry())
+            self.highlight(geometry)
         else:
-            info('Incorrect result. Please contact support', Qgis.Critical)
+            info('Incorrect result. Please contact support', Qgis.MessageLevel.Critical)
 
     def highlight(self, geometry: QgsGeometry):
         self.rubber_band.reset(geometry.type())
+        geometry.transform(self.transform_ch)
         self.rubber_band.addGeometry(geometry, None)
 
         rect = geometry.boundingBox()
-        if not self.settings.value('keep_scale'):
+        if not self.settings.keep_scale.value():
             if rect.isEmpty():
                 current_extent = self.map_canvas.extent()
-                rect = current_extent.scaled(self.settings.value(
-                    'point_scale')/self.map_canvas.scale(), rect.center())
+                rect = current_extent.scaled(self.settings.point_scale.value() / self.map_canvas.scale(), rect.center())
             else:
                 rect.scale(4)
         self.map_canvas.setExtent(rect)
@@ -337,7 +338,7 @@ class ShLocatorFilter(QgsLocatorFilter):
         else:
             # ShLocator does not handle {geometry_type} yet. Please contact support
             info('ShLocator unterstützt den Geometrietyp {geometry_type} nicht.'
-                 ' Bitte kontaktieren Sie den Support.'.format(geometry_type=geometry_type), Qgis.Warning)
+                 ' Bitte kontaktieren Sie den Support.'.format(geometry_type=geometry_type), Qgis.MessageLevel.Warning)
 
         geometry.transform(self.transform_ch)
         self.highlight(geometry)
