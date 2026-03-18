@@ -17,10 +17,10 @@ jobs:
         git submodule update --init --recursive
         sed -i 's#https://github.com/#git@github.com:#' .gitmodules
 
-    - name: Set up Python 3.8
+    - name: Set up Python
       uses: actions/setup-python@v1
       with:
-        python-version: 3.8
+        python-version: 3.12
 
     - name: Install qgis-plugin-ci
       run: pip3 install qgis-plugin-ci
@@ -30,5 +30,4 @@ jobs:
         qgis-plugin-ci
         release ${GITHUB_REF/refs\/tags\//}
         --github-token ${{ secrets.GITHUB_TOKEN }}
-        --osgeo-username ${{ secrets.OSGEO_PLUGIN_USERNAME }}
-        --osgeo-password ${{ secrets.OSGEO_PLUGIN_PASSWORD }}
+        --qgis-token ${{ secrets.QGIS_TOKEN }}
